@@ -1,0 +1,21 @@
+app:
+  name: 'merchant-service'
+  version: '1.0.0'
+
+http:
+  host: '0.0.0.0'
+  port: 8000
+
+logger:
+  log_level: 'debug'
+  rollbar_env: 'merchant-service'
+
+datasource:
+  type: mysql
+  postgres:
+    pool_max: 2
+    dsn_url: host=127.0.0.1 user=postgres password=P@ssw0rd dbname=postgres sslmode=disable
+  mysql:
+    max_open_conns: 50
+    max_idle_conns: 10
+    url: root:Simba123!@#@tcp(192.168.24.225:3306)/merchant?charset=utf8&parseTime=True&loc=Local

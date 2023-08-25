@@ -1,0 +1,67 @@
+app:
+  name: 'pay-service'
+  version: '1.0.0'
+
+http:
+  host: '0.0.0.0'
+  port: 6000
+
+logger:
+  log_level: 'debug'
+  rollbar_env: 'user-service'
+
+rabbitmq:
+  url: amqp://Simba_admin:Simba_123@rmq-cluster.public-service.svc.cluster.local:5672/
+  orderCancel:
+    exchangeName: 'merchant-cancel-exchange'
+    bindingKey: 'merchant-cancel-routing-key'
+    messageTypeName: 'merchant-cancel'
+  payCallBack:
+    exchangeName: 'merchant-callback-exchange'
+    bindingKey: 'merchant-callback-routing-key'
+    messageTypeName: 'merchant-callback'
+
+#支付相关配置specify:指定渠道开关:true or false, channel 2:连连支付，3:亚洲支付,非指定时要选择一种模式
+merchant:
+  specify: false
+  channel: "2"
+  #支付渠道选举模式 0随机，1轮询，2权重,2的时候需要配置权重
+  selectMode:
+    strategy: 2
+    weight:
+      - chan: "2"
+        value: "1"
+      - chan: "3"
+        value: "1"
+
+asiabill:
+  api:
+    paymentApiUrl: https://testpay.asiabill.com
+    callbackUrl: https://simbatest-oap-gateway.simbalink.cn/pcallback/v1/merchant/asia/result
+    merchantsKey: 12H4567r
+    gatewayNo: 12246002
+
+llp:
+  timeZone: 'Asia/Hong_Kong'
+  api:
+    baseUrl: https://celer-api.LianLianpay-inc.com/v3
+    notificationUrl: https://test-oap-gateway.simbalink.cn/pcallback/v1/merchant/lianlian/result
+  merchants:
+    iframe:
+      id: 202304250001649683
+      #privateKey: MIICWwIBAAKBgQCuReUHtKw4nkNuX9X0Vuaa8MxGi1aOff12yNyANlAS0EkX1ld2l7YHAxjSP3jQIP1HSQN0oOXJfM0Xb0TJSXpIwMqEXXJOmN3bll27ldwoLXahh3l6aWitP2VrV4vriXD2FeAFcGapNdlY46uvoP0ONW/09GiGbk9mRm+p2JNL5QIDAQABAoGAYpHN9QnPz0ZUxX0XOthcHo7MO6pcDsRcNG9vqGUP7VQ5w23MkptErbqms2SLJM1D9Knrdm/7CHe6WOLqeR9CNiyIEuBsVYJ8e4CYa7P1m8hmOOd8PD/rR1Bj3kf4KSXRVj1Voyybc4vf+EXTSdS5CDvyirkt8XQPulYcbLmLXYECQQDkgQogP0lX5EqJSsxRzz3+SIXMEyPpHI4ivGWtcdyOoe2Z/LcIx6JVB6hfHi4WH2PBdajFYC6mfKJ5n0MQLlztAkEAwz5LIpoac0QczEtJkarZIDif2aQi+soYrXnD3PE/ska0LpEQO7UD5jym8nmseLJQ1MGXxHN7Uel7y/5uwLbD2QJAFL++6qS0hT2eow7etMMLzw5Iz/og9ab5JSBUX0aKj40WpTf0auCt1ejHGjQEXU/mYAfOFnYgZk/E9SRIE60SFQJATaOe4zKepAmI3iBuL/PdhbeesUBY/JuS9qD+JwT0TGNbUU00RFn2I/8ocDG8SP63r/MP8/nsJyWOqg8SYaYL+QJAGNSLfRAzmwwwCoOvfGDEYv0bfAz/aQUt8WKTk46R4Xxka8xT2VjuNFIocmU2UJJhY0JaO06GnralNRs1yt0bSA==
+      privateKey: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC81Bu8JpC3iAYIN71XAHVTwvxyLY5jOke+Gxp34684jQuUpolWWqh62fAw6DVvsV6U+iMR5lxDJBatTU5UjzuvmXmmc9nzboULq/g/j2DnarW+M3G7Pcrkm4NrSMMHyqQ4xWRGDA0824CYeCRSp+41g8IvTU/xGa+/KTIi97KpMSRf8OzBvcI+fulOKxH2Flm1G3zgoiqQkvsf538sjV3oqNHbgl56XTbYuMeVd2JoUONEMjaAVefOtsw8hG4w5AJX29m00HMQlM4WICQSYVKSpHhIjLPT6OVBGmQJLioZds9mBwQGdnrUGiVnQlAS/NfxDpRVAj3vOuL1tnpUYn8dAgMBAAECggEAL/GrGRqxo+floDCG4pA7OglID7WBcbBahupazhYBZ1pollWyiTp7jLXJRqGu760ZVrosLV9QDbwcBeSa/t1fSjatrJW9wRFOtqfzYDAHarqtap2lQuVtnp3dwF+5JUFOcRutWhu1QL566DuY/WOmF/BcXaZDpfPfq6nKERbTRiHDdOYUDcffWJojW68nhnz+NoNMHigm/FhCLstvClAUHDnJfBlB7qdT4CyayUPgLYSNQXNk2YqtQX0/sFfl5UYIrgvBNSc6zfoTrIyYbJ1HXPuT/GalWfEb4EhOvgITgQnKOnyCTA8Pd3kEVMGTWzTmWqdpKI3SDDD5BMhbxxQgAQKBgQD7STqQ84tlOhFEm04YH6nlYDtYm4WFG4Zf62JEoyDHUIwAyHimZSS2dhOG20YplbVXam1eGuOj7qNrUaIhWW4mR23kfxuuapsPksNcmAWSVeIPUZyIKpKbsnDfd2cMGXzEiQbfW8yZ7FpZZhlAP4FttjD5yxomqc0zTwgNynUDKQKBgQDAXu9UHYVchIdONYg/55W8ZpNNG/BCbyc2qnb8K+Y2Z6cROt9pMSPJIadMstQH0Q7Top7XNnAw+v2y7H2G+jsPcpOhgOY+6B2oQeGgMqPQFFhNhM4soxV1mO+vy5yCYfzSrKaXvB6f0fUH2qtmB4opAYvSaommn/dzv0aJ1vmu1QKBgAUjTitAj40WTtwUQNiFbTffa9c39tbt5SV47p1wqG7q2rH5Z14fm0yPxX5wZVLcWMTczDesXRMxAe5j0OjVp0bpFvohDzPVwi3jVlNCWHrRfrnJdWXjWPQOBfjLvDOnIcHy+0z914UeLAq/56xEoCTaIM46tOItfqCZ8RQ3G4VhAoGAXrafKQ/72EhcAfKzaZtRCtiKD74AtgTaDr0xJglLKGAyTnZpBvatwtpx735gjJSusx5vDFD+Pe9lt5FeYHWVXI6yByNauYA5Ed2WA/TK2KkbrNcFV87XwvWQlUIvhbZO7z8YKr7xaQjLlplgKDTwHi5ntCrGKSa7g96aEUWp2x0CgYEAi2RYU6Bl2pNUEWzPiW82jHchdIy95dLJDG2xN9r2wl7R8pRd/vHbkLScE2DVnnYePnbW906jjl9hlVRbWO6LdDEN35HNOQJV4T95zUj4P0DQgQrKavlXckKviZ+BE5ZW9rZNDUIO028VXRURUbQfMvjuarbWoYY444FKa/Aj8t4=
+      publicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvNQbvCaQt4gGCDe9VwB1U8L8ci2OYzpHvhsad+OvOI0LlKaJVlqoetnwMOg1b7FelPojEeZcQyQWrU1OVI87r5l5pnPZ826FC6v4P49g52q1vjNxuz3K5JuDa0jDB8qkOMVkRgwNPNuAmHgkUqfuNYPCL01P8RmvvykyIveyqTEkX/Dswb3CPn7pTisR9hZZtRt84KIqkJL7H+d/LI1d6KjR24Jeel022LjHlXdiaFDjRDI2gFXnzrbMPIRuMOQCV9vZtNBzEJTOFiAkEmFSkqR4SIyz0+jlQRpkCS4qGXbPZgcEBnZ61BolZ0JQEvzX8Q6UVQI97zri9bZ6VGJ/HQIDAQAB
+      #pkcs8
+      #llPublicKey: MIIBIjANBgkqhkiG9w0BAQEFAOCAQ8AMIIBCgKCAQEAln1vczcMvmF/YtlISZoFLMXAeP4X+4zMFTixfD7zNn1/+luA2SWhJE+/waZ/9ggBCfWMs6jORA+8wLJg1yJbbtLXCJ6Qnve9kfIn46lq zheno8tQvLqnA0FpWctDMixJVXs5eKXn6kr2kkDLgUOgFBV3E8ApvVTbX5bXQgZgpISpmrloDsNmOYoLlY/HYld98xyFvSijUwTwYCRnHVP5/1D4+QB3CxvIOItSkJM43noRNjTCnZOgPFz jtQ1mbK+EWBz0t5hoJ7BQpY97OkZ9fJf4KDSb0BfFRpWGiUqAM9gY97dgM6lc4SGjHviyOafNpsKDqaeVl8zqemtTH44TnwIDAQAB
+      #pkcs1
+      llPublicKey: MIIBCgKCAQEAln1vczcMvmF/YtlISZoFLMXAeP4X+4zMFTixfD7zNn1/+luA2SWhJE+/waZ/9ggBCfWMs6jORA+8wLJg1yJbbtLXCJ6Qnve9kfIn46lqzheno8tQvLqnA0FpWctDMixJVXs5eKXn6kr2kkDLgUOgFBV3E8ApvVTbX5bXQgZgpISpmrloDsNmOYoLlY/HYld98xyFvSijUwTwYCRnHVP5/1D4+QB3CxvIOItSkJM43noRNjTCnZOgPFzjtQ1mbK+EWBz0t5hoJ7BQpY97OkZ9fJf4KDSb0BfFRpWGiUqAM9gY97dgM6lc4SGjHviyOafNpsKDqaeVl8zqemtTH44TnwIDAQAB
+datasource:
+  type: mysql
+  postgres:
+    pool_max: 2
+    dsn_url: host=127.0.0.1 user=postgres password=P@ssw0rd dbname=postgres sslmode=disable
+  mysql:
+    max_open_conns: 50
+    max_idle_conns: 10
+    url: root:Simba123!@#@tcp(mysql8.public-service.svc.cluster.local:3306)/merchant?charset=utf8&parseTime=True&loc=Local
