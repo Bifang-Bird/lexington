@@ -1,4 +1,4 @@
-module merchant
+module lexington
 
 go 1.20
 
