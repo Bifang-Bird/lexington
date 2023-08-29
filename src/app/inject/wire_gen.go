@@ -7,19 +7,57 @@
 package inject
 
 import (
-	"merchant/pkg"
-	"merchant/pkg/dbFactory"
-	"merchant/src/app/config"
+	"codeup.aliyun.com/6145b2b428003bdc3daa97c8/go-simba/go-simba-pkg.git/rabbitmq"
+	"codeup.aliyun.com/6145b2b428003bdc3daa97c8/go-simba/go-simba-pkg.git/rabbitmq/consumer"
+	"codeup.aliyun.com/6145b2b428003bdc3daa97c8/go-simba/go-simba-pkg.git/rabbitmq/publisher"
+	"github.com/Bifang-Bird/simbapkg/pkg"
+	"github.com/Bifang-Bird/simbapkg/pkg/dbFactory"
+	"github.com/Bifang-Bird/simbapkg/pkg/mq/publish"
+	"google.golang.org/grpc"
+	"lexington/src/app/config"
+	"lexington/src/domain/events/subscribe"
+	"lexington/src/domain/service"
+	grpc2 "lexington/src/infras_adapter/grpc"
+	"lexington/src/infras_adapter/mq"
+	"lexington/src/infras_adapter/repo"
+	"lexington/src/usecases"
 )
 
 // Injectors from wire.go:
 
-func InitApp(cfg *config.Config, ds *config.DataSource) (*App, func(), error) {
-	db, cleanup, err := dbEngineFunc(ds)
+func InitApp(cfg *config.Config, grpcServer *grpc.Server, num int) (*App, func(), error) {
+	db, cleanup, err := dbEngineFunc(cfg)
 	if err != nil {
 		return nil, nil, err
 	}
-	app := New(cfg, db)
+	channelPool, err := rabbitMQFuncPool(cfg)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	v, err := consumer.NewConsumerSlice(num, channelPool)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	eventPublisher, err := publisher.NewPublisher(channelPool)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	eventDelayPublisher, err := publisher.NewDeplayPublisher(channelPool)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	mqPublisher := publish.NewMqPublisher(eventPublisher, eventDelayPublisher)
+	domainRepo := repo.NewDomainRepoImpl(db)
+	domainService := service.NewDomainServiceImpl(domainRepo)
+	useCase := usecases.NewUseCase(domainRepo, domainService, mqPublisher)
+	smsServiceServer := grpc2.NewGRPCServerImpl(grpcServer, useCase)
+	mqEventHandler := subscribe.NewMqEventHandlerImpl(useCase)
+	mqInterface := mq.NewMQServer(mqEventHandler)
+	app := New(cfg, db, channelPool, v, mqPublisher, domainRepo, domainService, useCase, smsServiceServer, mqInterface)
 	return app, func() {
 		cleanup()
 	}, nil
@@ -27,10 +65,20 @@ func InitApp(cfg *config.Config, ds *config.DataSource) (*App, func(), error) {
 
 // wire.go:
 
-func dbEngineFunc(ds *config.DataSource) (pkg.DB, func(), error) {
-	db, err := dbFactory.GetDb(*ds)
+func dbEngineFunc(cfg *config.Config) (pkg.DB, func(), error) {
+	var ds = cfg.DataSource
+	db, err := dbFactory.GetDb(ds)
 	if err != nil {
 		return nil, nil, err
 	}
 	return db, func() { db.Close() }, nil
+}
+
+func rabbitMQFuncPool(cfg *config.Config) (*rabbitmq.ChannelPool, error) {
+	url := rabbitmq.RabbitMQConnStr(cfg.RabbitMQ.URL)
+	if url == "" {
+	}
+	channelPool := new(rabbitmq.ChannelPool)
+	channelPool.InitPool(url)
+	return channelPool, nil
 }

@@ -1,12 +1,14 @@
 package main
 
 import (
+	"codeup.aliyun.com/6145b2b428003bdc3daa97c8/go-simba/go-simba-pkg.git/rabbitmq/consumer"
 	"context"
 	"fmt"
-	"merchant/src/app/config"
-	"merchant/src/app/inject"
+	"lexington/src/app/config"
+	"lexington/src/app/inject"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 
 	"github.com/Bifang-Bird/simbapkg/app"
@@ -31,7 +33,7 @@ func main() {
 	s := app.NewServer()
 	//日志初始化
 	s.SetInitLogHandler(app.InitLogger).InitLogHandler(&cfg.Log)
-	app.Logger.Info("⚡ init app", zap.String("service", cfg.Name), zap.String("version", cfg.App.Version))
+	app.Logger.Info("⚡ 初始化应用开始", zap.String("service", cfg.Name), zap.String("version", cfg.App.Version))
 	//初始化grpc
 	server := s.SetInitGrpcHandler(app.InitGrpcServer).InitGrpcHandler(ctx)
 	go func() {
@@ -39,7 +41,8 @@ func main() {
 		<-ctx.Done()
 	}()
 
-	cleanup := prepareApp(ctx, cancel, cfg, server)
+	cleanup := prepareApp(ctx, cancel, cfg, server, 0)
+
 	//绑定端口
 	l := s.SetBandingPortHandler(app.BandingPort).BandingPortHandler(&cfg.HTTP, cancel)
 	defer func() {
@@ -58,19 +61,47 @@ func main() {
 	select {
 	case v := <-quit:
 		cleanup()
-		slog.Info("signal.Notify", v)
+		app.Logger.Info("系统退出", zap.Any("signal.Notify", v))
 	case done := <-ctx.Done():
 		cleanup()
-		slog.Info("ctx.Done", done)
+		app.Logger.Info("系统退出", zap.Any("ctx.Done", done))
 	}
+
 }
 
-func prepareApp(ctx context.Context, cancel context.CancelFunc, cfg *config.Config, server *grpc.Server) func() {
-	_, cleanup, err := inject.InitApp(cfg, &cfg.DataSource)
+func prepareApp(ctx context.Context, cancel context.CancelFunc, cfg *config.Config, server *grpc.Server, mqCustomerNum int) func() {
+	serve, cleanup, err := inject.InitApp(cfg, server, mqCustomerNum)
 	if err != nil {
 		slog.Error("failed init app", err)
 		cancel()
 		<-ctx.Done()
 	}
+	//初始化消费者
+	InitMqConsumer(ctx, cancel, cfg, serve, mqCustomerNum)
 	return cleanup
+}
+
+func InitMqConsumer(ctx context.Context, cancel context.CancelFunc, cfg *config.Config, serve *inject.App, num int) {
+	if len(cfg.RabbitMQ.Consumer) > 0 && len(cfg.RabbitMQ.Consumer) == num {
+		for i, consu := range cfg.RabbitMQ.Consumer {
+			finishOrderConsumer := serve.Consumer[i]
+			finishOrderConsumer.Configure(
+				consumer.ExchangeName(consu.Body.ExchangeName),
+				consumer.BindingKey(consu.Body.BindingKey),
+				consumer.QueueName(consu.Body.QueueName),
+				consumer.ConsumerTag(consu.Body.ConsumerTag),
+			)
+			go func(worker consumer.EventConsumer, num int, conp config.ConsumerProfile) {
+				app.Logger.Info("启动消费者", zap.Any(fmt.Sprintf("第[%s]个", strconv.Itoa(num)), conp.Type), zap.String("交换机", conp.Body.ExchangeName))
+				err1 := worker.StartConsumer(serve.MqServer.Worker)
+				if err1 != nil {
+					slog.Error("failed to start Consumer", err1)
+					cancel()
+					<-ctx.Done()
+				}
+			}(finishOrderConsumer, i, consu)
+		}
+	} else {
+
+	}
 }
