@@ -2,8 +2,8 @@ codeup.aliyun.com/6145b2b428003bdc3daa97c8/go-simba/go-simba-pkg.git v0.0.4-0.20
 codeup.aliyun.com/6145b2b428003bdc3daa97c8/go-simba/go-simba-pkg.git v0.0.4-0.20230816020508-d7cef8d4070b/go.mod h1:ERDzC8CCUDeU3phKAlGjt+KSvqGldZNrxhCdASAtN2o=
 codeup.aliyun.com/6145b2b428003bdc3daa97c8/go-simba/go-simba-proto.git v0.0.207 h1:P93+9i0muMUHynOJPD1JjU/Sp2v8wUVEKJ5KyStE0VQ=
 codeup.aliyun.com/6145b2b428003bdc3daa97c8/go-simba/go-simba-proto.git v0.0.207/go.mod h1:EDCGQ8PaVoNyhS2rLETcnu0nScXtR9V16qh92yZfHyU=
-github.com/Bifang-Bird/simbapkg v0.0.11 h1:kAZWjizIW3s+OSy1DkfsGxDCo5RxEk7dk+uy5WslisQ=
-github.com/Bifang-Bird/simbapkg v0.0.11/go.mod h1:lVxy+rZelM6Vbz2co4l2Zj0q32OXDdbrBUHmMog5p3o=
+github.com/Bifang-Bird/simbapkg v0.0.13 h1:ZhxpOqn6HFMQvjI/ROSqG38q7v/+AnXvOLCd5Ju/fv4=
+github.com/Bifang-Bird/simbapkg v0.0.13/go.mod h1:lVxy+rZelM6Vbz2co4l2Zj0q32OXDdbrBUHmMog5p3o=
 github.com/BurntSushi/toml v1.1.0 h1:ksErzDEI1khOiGPgpwuI7x2ebx/uXQNw7xJpn9Eq1+I=
 github.com/BurntSushi/toml v1.1.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/benbjohnson/clock v1.3.0 h1:ip6w0uFQkncKQ979AypyG0ER7mqUSBdKLOgAle/AT8A=

@@ -39,9 +39,9 @@ logger:
 
 datasource:
   type: mysql
-  postgres:
-    pool_max: 2
-    dsn_url: host=127.0.0.1 user=postgres password=P@ssw0rd dbname=postgres sslmode=disable
+#  postgres:
+#    pool_max: 2
+#    dsn_url: host=127.0.0.1 user=postgres password=P@ssw0rd dbname=postgres sslmode=disable
   mysql:
     max_open_conns: 50
     max_idle_conns: 10

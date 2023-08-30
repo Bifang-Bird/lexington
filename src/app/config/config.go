@@ -17,35 +17,7 @@ type (
 		configs.HTTP        `yaml:"http"`
 		configs.Log         `yaml:"logger"`
 		dbconfig.DataSource `yaml:"datasource"`
-		RabbitMQ            `yaml:"rabbitmq" ,env-required:"false" ,env:"RABBITMQ"`
-	}
-
-	RabbitMQ struct {
-		URL      string            `yaml:"url" ,env-required:"false" ,env:"RABBITMQ_URL"`
-		Publish  []PublishProfile  `yaml:"publish" ,env-required:"false" ,env:"PUBLISH"`
-		Consumer []ConsumerProfile `yaml:"consumer" ,env-required:"false" ,env:"CONSUMER"`
-	}
-
-	PublishProfile struct {
-		Type string      `env-required:"true" yaml:"type" env:"TYPE"`
-		Body PublishBody `env-required:"true" yaml:"body" env:"BODY"`
-	}
-
-	PublishBody struct {
-		ExchangeName    string `env-required:"true" yaml:"exchangeName" env:"EXCHANGE_NAME"`
-		BindingKey      string `env-required:"true" yaml:"bindingKey" env:"BINDING_KEY"`
-		MessageTypeName string `env-required:"true" yaml:"messageTypeName" env:"MESSAGE_TYPE_NAME"`
-	}
-	ConsumerProfile struct {
-		Type string       `env-required:"true" yaml:"type" env:"TYPE"`
-		Body ConsumerBody `env-required:"true" yaml:"body" env:"BODY"`
-	}
-
-	ConsumerBody struct {
-		ExchangeName string `env-required:"true" yaml:"exchangeName" env:"EXCHANGE_NAME"`
-		BindingKey   string `env-required:"true" yaml:"bindingKey" env:"BINDING_KEY"`
-		ConsumerTag  string `env-required:"true" yaml:"consumerTag" env:"CONSUMER_TAG"`
-		QueueName    string `env-required:"true" yaml:"queueName" env:"QUEUE_NAME"`
+		dbconfig.RabbitMQ   `yaml:"rabbitmq" ,env-required:"false" ,env:"RABBITMQ"`
 	}
 )
 

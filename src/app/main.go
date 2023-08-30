@@ -4,6 +4,7 @@ import (
 	"codeup.aliyun.com/6145b2b428003bdc3daa97c8/go-simba/go-simba-pkg.git/rabbitmq/consumer"
 	"context"
 	"fmt"
+	"github.com/Bifang-Bird/simbapkg/pkg/dbconfig"
 	"lexington/src/app/config"
 	"lexington/src/app/inject"
 	"os"
@@ -91,7 +92,7 @@ func InitMqConsumer(ctx context.Context, cancel context.CancelFunc, cfg *config.
 				consumer.QueueName(consu.Body.QueueName),
 				consumer.ConsumerTag(consu.Body.ConsumerTag),
 			)
-			go func(worker consumer.EventConsumer, num int, conp config.ConsumerProfile) {
+			go func(worker consumer.EventConsumer, num int, conp dbconfig.ConsumerProfile) {
 				app.Logger.Info("启动消费者", zap.Any(fmt.Sprintf("第[%s]个", strconv.Itoa(num)), conp.Type), zap.String("交换机", conp.Body.ExchangeName))
 				err1 := worker.StartConsumer(serve.MqServer.Worker)
 				if err1 != nil {

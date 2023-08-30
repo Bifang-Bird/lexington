@@ -5,7 +5,7 @@ go 1.20
 require (
 	codeup.aliyun.com/6145b2b428003bdc3daa97c8/go-simba/go-simba-pkg.git v0.0.4-0.20230816020508-d7cef8d4070b
 	codeup.aliyun.com/6145b2b428003bdc3daa97c8/go-simba/go-simba-proto.git v0.0.207
-	github.com/Bifang-Bird/simbapkg v0.0.11
+	github.com/Bifang-Bird/simbapkg v0.0.13
 	github.com/google/wire v0.5.0
 	github.com/ilyakaznacheev/cleanenv v1.3.0
 	github.com/rabbitmq/amqp091-go v1.8.0
